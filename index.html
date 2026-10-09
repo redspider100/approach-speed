@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Approach Speed</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<style>
+:root{--bg:#070b12;--card:rgba(255,255,255,.045);--line:rgba(255,255,255,.09);--text:#eef2f8;--muted:#8a96ab;--green:#5be39a;--orange:#f0913a;--red:#ff6b6b;--blue:#5b8cff;--field:#0d1320}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100vh;background:radial-gradient(900px 520px at 15% -8%,rgba(52,170,110,.24),transparent 62%),radial-gradient(700px 500px at 100% 40%,rgba(91,140,255,.1),transparent 60%),var(--bg);color:var(--text);font:16px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+.wrap{max-width:1000px;margin:0 auto;padding:12px max(16px,env(safe-area-inset-left,0px)) 28px max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;justify-content:space-between;align-items:center;padding:6px 2px 14px}
+.brand{font-size:15px;font-weight:600;color:var(--muted)}
+.icon{appearance:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--text);display:grid;place-items:center;cursor:pointer}
+.lab{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px}
+.grid{display:grid;gap:14px;grid-template-areas:"hero" "comps" "comp" "ctl"}
+.hero{grid-area:hero;background:linear-gradient(160deg,rgba(91,227,154,.1),rgba(255,255,255,.03))}
+.big{display:flex;align-items:baseline;gap:8px;color:var(--green);font-weight:700;letter-spacing:-.045em;line-height:1}
+.big span{font-size:clamp(76px,24vw,124px);font-variant-numeric:tabular-nums}
+.big small{font-size:20px;letter-spacing:0;color:var(--muted);font-weight:600}
+.chip{display:inline-flex;gap:8px;align-items:center;margin-top:10px;padding:7px 13px;border-radius:999px;background:rgba(91,227,154,.12);border:1px solid rgba(91,227,154,.28);color:var(--green);font-weight:600;font-size:15px}
+.chip em{font-style:normal;color:var(--muted);font-weight:500;font-size:13px}
+.comps{grid-area:comps;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.comps .card{padding:14px}
+.val{display:flex;align-items:baseline;gap:6px;margin-top:6px;font-size:32px;font-weight:600;letter-spacing:-.02em;color:var(--green);font-variant-numeric:tabular-nums}
+.val.bad{color:var(--red)}
+.val i{font-style:normal;font-size:26px}
+.val small{font-size:13px;color:var(--muted);font-weight:600}
+.g{margin-top:4px;font-size:13px;color:var(--muted);min-height:18px;font-variant-numeric:tabular-nums}
+.comp{grid-area:comp;padding:12px}
+svg#dial{display:block;width:min(100%,430px);margin:0 auto;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.hint{margin:6px 0 0;text-align:center;font-size:12.5px;color:var(--muted)}
+.ctl{grid-area:ctl;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.st.full{grid-column:1/-1}
+.row{display:flex;align-items:stretch;margin-top:7px;background:var(--field);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.row button{appearance:none;border:0;background:rgba(255,255,255,.05);color:var(--text);width:52px;font-size:24px;line-height:1;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.row button:active{background:rgba(91,140,255,.35)}
+.row input{flex:1;min-width:0;width:100%;text-align:center;background:none;border:0;outline:0;color:var(--text);font:inherit;font-size:24px;font-weight:600;padding:12px 0;font-variant-numeric:tabular-nums}
+.row:focus-within{border-color:var(--blue)}
+@media (min-width:820px){.grid{grid-template-columns:1.05fr 1fr;grid-template-areas:"comp hero" "comp comps" "comp ctl";align-content:start}}
+.sheet{position:fixed;inset:0;z-index:20;visibility:hidden}
+.sheet.open{visibility:visible}
+.back{position:absolute;inset:0;background:rgba(0,0,0,.55);opacity:0;transition:opacity .2s}
+.sheet.open .back{opacity:1}
+.panel{position:absolute;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;background:#111827;border:1px solid var(--line);border-radius:26px 26px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .25s ease}
+.sheet.open .panel{transform:none}
+.panel h2{margin:0 0 16px;font-size:22px}
+.panel p{margin:6px 0 12px;color:var(--muted);font-size:14px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg button,.act{appearance:none;border:1px solid var(--line);background:var(--field);color:var(--text);font:inherit;font-weight:600;padding:14px;border-radius:14px;cursor:pointer}
+.seg button.on{background:var(--blue);border-color:var(--blue)}
+.seg button small{display:block;margin-top:3px;font-size:13px;font-weight:500;color:var(--muted)}
+.seg button.on small{color:rgba(255,255,255,.85)}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}
+.act.main{background:var(--blue);border-color:var(--blue)}
+.fine{font-size:12.5px!important;margin-bottom:0!important}
+</style>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#070b12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Approach Speed">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand">Approach speed calculator</div>
+  <button class="icon" id="gear" type="button" aria-label="Settings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg></button>
+</header>
+<main class="grid">
+  <section class="card hero" aria-live="polite">
+    <div class="lab">Approach speed</div>
+    <div class="big"><span id="vapp">0</span><small>KT</small></div>
+    <div class="chip" id="chip">VREF + 5</div>
+  </section>
+  <section class="comps">
+    <div class="card"><div class="lab" id="hwl">Headwind</div><div class="val" id="hwv"><i id="hwa">↓</i><b id="hw">0</b><small>KT</small></div><div class="g" id="hwg"></div></div>
+    <div class="card"><div class="lab">Crosswind</div><div class="val" id="cwv"><i id="cwa">→</i><b id="cw">0</b><small>KT</small></div><div class="g" id="cwg"></div></div>
+  </section>
+  <section class="card comp">
+    <svg id="dial" viewBox="0 0 400 400" role="img" aria-label="Wind and runway compass">
+      <defs>
+        <linearGradient id="pf" x1="0" x2="1"><stop offset="0" stop-color="#f6f8fc"/><stop offset="1" stop-color="#c9d2e0"/></linearGradient>
+        <clipPath id="clip"><circle cx="200" cy="200" r="139"/></clipPath>
+      </defs>
+      <circle cx="200" cy="200" r="190" fill="#121a2a" stroke="rgba(255,255,255,.1)"/>
+      <circle cx="200" cy="200" r="140" fill="#05080e" stroke="rgba(255,255,255,.08)"/>
+      <g id="ticks"></g><g id="labels"></g>
+      <g id="rw">
+        <g clip-path="url(#clip)">
+          <rect x="170" y="40" width="60" height="320" fill="#141b29"/>
+          <path d="M200 50V350" stroke="#3a4558" stroke-width="2.5" stroke-dasharray="14 12"/>
+          <path d="M176 60h48M176 340h48" stroke="#3a4558" stroke-width="3"/>
+        </g>
+        <g transform="translate(200 200) scale(2.3) translate(-50 -52)" stroke="rgba(0,0,0,.28)" stroke-width=".4">
+          <path d="M45.8 42L14 60v4.500l31.800-9z" fill="#dfe5ee"/><path d="M54.2 42L86 60v4.500l-31.800-9z" fill="#dfe5ee"/>
+          <rect x="42" y="70" width="3.800" height="3" fill="#aab4c4"/><rect x="54.200" y="70" width="3.800" height="3" fill="#aab4c4"/>
+          <rect x="37.800" y="66" width="4.400" height="14" rx="2.200" fill="#bcc6d5"/><rect x="57.800" y="66" width="4.400" height="14" rx="2.200" fill="#bcc6d5"/>
+          <path d="M46 83L36 90v2.500l10-4z" fill="#dfe5ee"/><path d="M54 83L64 90v2.500l-10-4z" fill="#dfe5ee"/>
+          <path d="M50 12c2.600 0 4.200 4.500 4.200 12v46c0 8-1.800 15-4.200 20-2.400-5-4.200-12-4.200-20V24c0-7.500 1.600-12 4.200-12z" fill="url(#pf)"/>
+          <rect x="49.300" y="76" width="1.400" height="14" rx=".7" fill="#b3bdcc" stroke="none"/>
+          <path d="M47.600 17.500c1.500-1 3.300-1 4.800 0l-.5 3h-3.800z" fill="#2a3446" stroke="none"/>
+        </g>
+      </g>
+      <g id="sock"></g>
+    </svg>
+    <p class="hint">Drag the outer ring to set the wind, the center to set the runway.</p>
+  </section>
+  <section class="card ctl">
+    <div class="st" data-k="wd"><div class="lab">Wind direction</div><div class="row"><button type="button" data-d="-1" aria-label="Decrease">−</button><input inputmode="numeric" autocomplete="off"><button type="button" data-d="1" aria-label="Increase">+</button></div></div>
+    <div class="st" data-k="rw"><div class="lab">Runway heading</div><div class="row"><button type="button" data-d="-1" aria-label="Decrease">−</button><input inputmode="numeric" autocomplete="off"><button type="button" data-d="1" aria-label="Increase">+</button></div></div>
+    <div class="st" data-k="ws"><div class="lab">Wind speed (KT)</div><div class="row"><button type="button" data-d="-1" aria-label="Decrease">−</button><input inputmode="numeric" autocomplete="off"><button type="button" data-d="1" aria-label="Increase">+</button></div></div>
+    <div class="st" data-k="gs"><div class="lab">Gust (KT)</div><div class="row"><button type="button" data-d="-1" aria-label="Decrease">−</button><input inputmode="numeric" autocomplete="off"><button type="button" data-d="1" aria-label="Increase">+</button></div></div>
+    <div class="st full" data-k="vref"><div class="lab">VREF (KT)</div><div class="row"><button type="button" data-d="-1" aria-label="Decrease">−</button><input inputmode="numeric" autocomplete="off"><button type="button" data-d="1" aria-label="Increase">+</button></div></div>
+  </section>
+</main>
+</div>
+<div class="sheet" id="sheet">
+  <div class="back" id="back"></div>
+  <div class="panel">
+    <h2>Settings</h2>
+    <div class="lab">VREF limit</div>
+    <p>The most the wind can add to VREF</p>
+    <div class="seg"><button type="button" data-l="15">15 KT<small>Flaps 45</small></button><button type="button" data-l="20">20 KT<small>Flaps 22</small></button></div>
+    <div class="acts"><button class="act" id="reset" type="button">Reset values</button><button class="act main" id="done" type="button">Done</button></div>
+    <p class="fine">Additive is half the steady headwind plus the gust spread, never less than 5 KT. Reference only. Always verify against approved procedures.</p>
+  </div>
+</div>
+<script>
+(function(){
+var DEF={wd:52,rw:99,ws:15,gs:22,vref:125,lim:15},S={},KEY='approach-speed-v1';
+var CFG={wd:{w:1},rw:{w:1},ws:{min:0,max:99},gs:{min:0,max:99},vref:{min:50,max:250}};
+function $(i){return document.getElementById(i)}
+function norm(a){return ((Math.round(a)-1)%360+360)%360+1}
+function pad(a){return ('00'+a).slice(-3)}
+function clamp(v,a,b){return Math.min(b,Math.max(a,v))}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function load(){var o=null;try{o=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
+  for(var k in DEF)S[k]=(o&&typeof o[k]==='number')?o[k]:DEF[k]}
+function setv(k,v){var c=CFG[k];S[k]=c.w?norm(v):clamp(Math.round(v),c.min,c.max);save();calc();sync()}
+function sync(){document.querySelectorAll('.st').forEach(function(el){var k=el.dataset.k,i=el.querySelector('input');
+  if(document.activeElement!==i)i.value=CFG[k].w?pad(S[k]):S[k]});
+  document.querySelectorAll('.seg button').forEach(function(b){b.classList.toggle('on',+b.dataset.l===S.lim)})}
+function calc(){
+  var d=(S.wd-S.rw)*Math.PI/180,ws=S.ws,ge=Math.max(S.gs,ws);
+  var hw=ws*Math.cos(d),cw=ws*Math.sin(d),ghw=ge*Math.cos(d),gcw=ge*Math.sin(d);
+  var raw=Math.round(0.5*Math.max(hw,0)+(ge-ws)),add=clamp(raw,5,S.lim);
+  $('vapp').textContent=S.vref+add;
+  $('chip').innerHTML='VREF + '+add+(raw<5?' <em>minimum</em>':raw>S.lim?' <em>limit</em>':'');
+  var tail=hw<-0.05;
+  $('hwl').textContent=tail?'Tailwind':'Headwind';
+  $('hwa').textContent=tail?'↑':'↓';$('hw').textContent=Math.abs(hw).toFixed(1);
+  $('hwv').className='val'+(tail?' bad':'');
+  $('hwg').textContent=ge>ws?'G '+Math.abs(ghw).toFixed(1):'';
+  $('cwa').textContent=cw<-0.05?'→':(cw>0.05?'←':'');$('cw').textContent=Math.abs(cw).toFixed(1);
+  $('cwg').textContent=ge>ws?'G '+Math.abs(gcw).toFixed(1):'';
+  $('rw').setAttribute('transform','rotate('+S.rw+' 200 200)');
+  $('sock').setAttribute('transform','rotate('+S.wd+' 200 200)');
+}
+/* dial art */
+(function(){
+  var t='',l='',i,a,r,x,y;
+  for(i=0;i<36;i++){a=i*10*Math.PI/180;var maj=i%3===0,r1=185,r2=maj?170:177;
+    t+='<path d="M'+(200+r1*Math.sin(a))+' '+(200-r1*Math.cos(a))+'L'+(200+r2*Math.sin(a))+' '+(200-r2*Math.cos(a))+'" stroke="'+(maj?'#6d7a92':'#3b4659')+'" stroke-width="'+(maj?2:1.5)+'"/>'}
+  for(i=0;i<12;i++){a=i*30*Math.PI/180;r=154;x=200+r*Math.sin(a);y=200-r*Math.cos(a);
+    var tx=i===0?'N':i===3?'E':i===6?'S':i===9?'W':i*3;
+    l+='<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" font-size="'+(i%3?17:19)+'" font-weight="600" fill="'+(i%3?'#8a96ab':'#eef2f8')+'">'+tx+'</text>'}
+  $('ticks').innerHTML=t;$('labels').innerHTML=l;
+  var s='<circle cx="200" cy="20" r="3.500" fill="#dfe5ee"/>';
+  for(i=0;i<4;i++){var y0=24+i*7,y1=y0+7,h0=7-(y0-24)*4/28,h1=7-(y1-24)*4/28;
+    s+='<path d="M'+(200-h0)+' '+y0+'H'+(200+h0)+'L'+(200+h1)+' '+y1+'H'+(200-h1)+'Z" fill="'+(i%2?'#f4f6fa':'#f0913a')+'"/>'}
+  $('sock').innerHTML=s;
+})();
+/* drag */
+var dial=$('dial'),mode=null;
+function apply(e){var b=dial.getBoundingClientRect(),k=400/b.width,x=(e.clientX-b.left)*k-200,y=(e.clientY-b.top)*k-200;
+  var deg=Math.atan2(x,-y)*180/Math.PI;if(deg<0)deg+=360;
+  if(mode==='w')S.wd=norm(deg);else S.rw=norm(deg);save();calc();sync()}
+dial.addEventListener('pointerdown',function(e){var b=dial.getBoundingClientRect(),k=400/b.width,
+  x=(e.clientX-b.left)*k-200,y=(e.clientY-b.top)*k-200;mode=Math.hypot(x,y)>=142?'w':'r';
+  try{dial.setPointerCapture(e.pointerId)}catch(_){}apply(e);e.preventDefault()});
+dial.addEventListener('pointermove',function(e){if(mode)apply(e)});
+['pointerup','pointercancel'].forEach(function(n){dial.addEventListener(n,function(){mode=null})});
+/* steppers */
+document.querySelectorAll('.st').forEach(function(el){
+  var k=el.dataset.k,inp=el.querySelector('input');
+  el.querySelectorAll('button').forEach(function(b){
+    var d=+b.dataset.d,t,iv;
+    function step(){setv(k,S[k]+d)}
+    function stop(){clearTimeout(t);clearInterval(iv)}
+    b.addEventListener('pointerdown',function(e){e.preventDefault();step();t=setTimeout(function(){iv=setInterval(step,70)},380)});
+    ['pointerup','pointerleave','pointercancel'].forEach(function(n){b.addEventListener(n,stop)});
+  });
+  inp.addEventListener('input',function(){var v=parseInt(inp.value,10);if(isNaN(v))return;
+    var c=CFG[k];S[k]=c.w?norm(v):clamp(v,c.min,c.max);save();calc()});
+  inp.addEventListener('blur',sync);
+  inp.addEventListener('focus',function(){inp.select()});
+});
+/* settings */
+function sheet(o){$('sheet').classList.toggle('open',o)}
+$('gear').addEventListener('click',function(){sheet(true)});
+$('back').addEventListener('click',function(){sheet(false)});
+$('done').addEventListener('click',function(){sheet(false)});
+$('reset').addEventListener('click',function(){for(var k in DEF)S[k]=DEF[k];save();calc();sync()});
+document.querySelectorAll('.seg button').forEach(function(b){b.addEventListener('click',function(){S.lim=+b.dataset.l;save();calc();sync()})});
+load();calc();sync();
+})();
+</script>
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
+</script>
+</body>
+</html>
