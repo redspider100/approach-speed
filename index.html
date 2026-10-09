@@ -17,7 +17,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:6px
 .icon{appearance:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--text);display:grid;place-items:center;cursor:pointer}
 .lab{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px}
-.grid{display:grid;gap:14px;grid-template-areas:"hero" "comps" "comp" "ctl"}
+.grid{display:grid;gap:14px;grid-template-areas:"hero" "comps" "comp" "lim" "ctl"}
 .hero{grid-area:hero;background:linear-gradient(160deg,rgba(91,227,154,.1),rgba(255,255,255,.03))}
 .big{display:flex;align-items:baseline;gap:8px;color:var(--green);font-weight:700;letter-spacing:-.045em;line-height:1}
 .big span{font-size:clamp(76px,24vw,124px);font-variant-numeric:tabular-nums}
@@ -41,15 +41,10 @@ svg#dial{display:block;width:min(100%,430px);margin:0 auto;touch-action:none;use
 .row button:active{background:rgba(91,140,255,.35)}
 .row input{flex:1;min-width:0;width:100%;text-align:center;background:none;border:0;outline:0;color:var(--text);font:inherit;font-size:24px;font-weight:600;padding:12px 0;font-variant-numeric:tabular-nums}
 .row:focus-within{border-color:var(--blue)}
-@media (min-width:820px){.grid{grid-template-columns:1.05fr 1fr;grid-template-areas:"comp hero" "comp comps" "comp ctl";align-content:start}}
-.sheet{position:fixed;inset:0;z-index:20;visibility:hidden}
-.sheet.open{visibility:visible}
-.back{position:absolute;inset:0;background:rgba(0,0,0,.55);opacity:0;transition:opacity .2s}
-.sheet.open .back{opacity:1}
-.panel{position:absolute;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;background:#111827;border:1px solid var(--line);border-radius:26px 26px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .25s ease}
-.sheet.open .panel{transform:none}
-.panel h2{margin:0 0 16px;font-size:22px}
-.panel p{margin:6px 0 12px;color:var(--muted);font-size:14px}
+@media (min-width:820px){.grid{grid-template-columns:1.05fr 1fr;grid-template-areas:"comp hero" "comp comps" "lim ctl";align-content:start}}
+.lim{grid-area:lim;align-self:start}
+.lim p{margin:6px 0 12px;color:var(--muted);font-size:14px}
+.lim .act{width:100%;margin-top:14px}
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .seg button,.act{appearance:none;border:1px solid var(--line);background:var(--field);color:var(--text);font:inherit;font-weight:600;padding:14px;border-radius:14px;cursor:pointer}
 .seg button.on{background:var(--blue);border-color:var(--blue)}
@@ -70,7 +65,6 @@ svg#dial{display:block;width:min(100%,430px);margin:0 auto;touch-action:none;use
 <div class="wrap">
 <header>
   <div class="brand">Approach speed calculator</div>
-  <button class="icon" id="gear" type="button" aria-label="Settings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg></button>
 </header>
 <main class="grid">
   <section class="card hero" aria-live="polite">
@@ -111,43 +105,39 @@ svg#dial{display:block;width:min(100%,430px);margin:0 auto;touch-action:none;use
     </svg>
     <p class="hint">Drag the outer ring to set the wind, the center to set the runway.</p>
   </section>
+  <section class="card lim">
+    <div class="lab">VREF limit</div>
+    <p>The most the wind can add to VREF</p>
+    <div class="seg"><button type="button" data-l="15">15 KT<small>Flaps 45</small></button><button type="button" data-l="20">20 KT<small>Flaps 22</small></button></div>
+    <button class="act" id="reset" type="button">Reset values</button>
+    <p class="fine">Additive is half the steady headwind plus the gust spread, never less than 5 KT. Runway number sets the heading (number times 10). Reference only. Always verify against approved procedures.</p>
+  </section>
   <section class="card ctl">
     <div class="st" data-k="wd"><div class="lab">Wind direction</div><div class="row"><button type="button" data-d="-1" aria-label="Decrease">−</button><input inputmode="numeric" autocomplete="off"><button type="button" data-d="1" aria-label="Increase">+</button></div></div>
-    <div class="st" data-k="rw"><div class="lab">Runway heading</div><div class="row"><button type="button" data-d="-1" aria-label="Decrease">−</button><input inputmode="numeric" autocomplete="off"><button type="button" data-d="1" aria-label="Increase">+</button></div></div>
+    <div class="st" data-k="rw"><div class="lab">Runway number</div><div class="row"><button type="button" data-d="-1" aria-label="Decrease">−</button><input inputmode="numeric" autocomplete="off" maxlength="2"><button type="button" data-d="1" aria-label="Increase">+</button></div></div>
     <div class="st" data-k="ws"><div class="lab">Wind speed (KT)</div><div class="row"><button type="button" data-d="-1" aria-label="Decrease">−</button><input inputmode="numeric" autocomplete="off"><button type="button" data-d="1" aria-label="Increase">+</button></div></div>
     <div class="st" data-k="gs"><div class="lab">Gust (KT)</div><div class="row"><button type="button" data-d="-1" aria-label="Decrease">−</button><input inputmode="numeric" autocomplete="off"><button type="button" data-d="1" aria-label="Increase">+</button></div></div>
     <div class="st full" data-k="vref"><div class="lab">VREF (KT)</div><div class="row"><button type="button" data-d="-1" aria-label="Decrease">−</button><input inputmode="numeric" autocomplete="off"><button type="button" data-d="1" aria-label="Increase">+</button></div></div>
   </section>
 </main>
 </div>
-<div class="sheet" id="sheet">
-  <div class="back" id="back"></div>
-  <div class="panel">
-    <h2>Settings</h2>
-    <div class="lab">VREF limit</div>
-    <p>The most the wind can add to VREF</p>
-    <div class="seg"><button type="button" data-l="15">15 KT<small>Flaps 45</small></button><button type="button" data-l="20">20 KT<small>Flaps 22</small></button></div>
-    <div class="acts"><button class="act" id="reset" type="button">Reset values</button><button class="act main" id="done" type="button">Done</button></div>
-    <p class="fine">Additive is half the steady headwind plus the gust spread, never less than 5 KT. Reference only. Always verify against approved procedures.</p>
-  </div>
-</div>
 <script>
 (function(){
-var DEF={wd:52,rw:99,ws:15,gs:22,vref:125,lim:15},S={},KEY='approach-speed-v1';
-var CFG={wd:{w:1},rw:{w:1},ws:{min:0,max:99},gs:{min:0,max:99},vref:{min:50,max:250}};
+var DEF={wd:52,rw:10,ws:15,gs:22,vref:125,lim:15},S={},KEY='approach-speed-v2';
+var CFG={wd:{w:360},rw:{w:36},ws:{min:0,max:99},gs:{min:0,max:99},vref:{min:50,max:250}};
 function $(i){return document.getElementById(i)}
-function norm(a){return ((Math.round(a)-1)%360+360)%360+1}
-function pad(a){return ('00'+a).slice(-3)}
+function norm(a,m){m=m||360;return ((Math.round(a)-1)%m+m)%m+1}
+function pad(a,n){return ('00'+a).slice(-(n||3))}
 function clamp(v,a,b){return Math.min(b,Math.max(a,v))}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function load(){var o=null;try{o=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
   for(var k in DEF)S[k]=(o&&typeof o[k]==='number')?o[k]:DEF[k]}
-function setv(k,v){var c=CFG[k];S[k]=c.w?norm(v):clamp(Math.round(v),c.min,c.max);save();calc();sync()}
+function setv(k,v){var c=CFG[k];S[k]=c.w?norm(v,c.w):clamp(Math.round(v),c.min,c.max);save();calc();sync()}
 function sync(){document.querySelectorAll('.st').forEach(function(el){var k=el.dataset.k,i=el.querySelector('input');
-  if(document.activeElement!==i)i.value=CFG[k].w?pad(S[k]):S[k]});
+  if(document.activeElement!==i)i.value=CFG[k].w?pad(S[k],CFG[k].w===36?2:3):S[k]});
   document.querySelectorAll('.seg button').forEach(function(b){b.classList.toggle('on',+b.dataset.l===S.lim)})}
 function calc(){
-  var d=(S.wd-S.rw)*Math.PI/180,ws=S.ws,ge=Math.max(S.gs,ws);
+  var d=(S.wd-S.rw*10)*Math.PI/180,ws=S.ws,ge=Math.max(S.gs,ws);
   var hw=ws*Math.cos(d),cw=ws*Math.sin(d),ghw=ge*Math.cos(d),gcw=ge*Math.sin(d);
   var raw=Math.round(0.5*Math.max(hw,0)+(ge-ws)),add=clamp(raw,5,S.lim);
   $('vapp').textContent=S.vref+add;
@@ -159,7 +149,7 @@ function calc(){
   $('hwg').textContent=ge>ws?'G '+Math.abs(ghw).toFixed(1):'';
   $('cwa').textContent=cw<-0.05?'→':(cw>0.05?'←':'');$('cw').textContent=Math.abs(cw).toFixed(1);
   $('cwg').textContent=ge>ws?'G '+Math.abs(gcw).toFixed(1):'';
-  $('rw').setAttribute('transform','rotate('+S.rw+' 200 200)');
+  $('rw').setAttribute('transform','rotate('+(S.rw*10)+' 200 200)');
   $('sock').setAttribute('transform','rotate('+S.wd+' 200 200)');
 }
 /* dial art */
@@ -180,7 +170,7 @@ function calc(){
 var dial=$('dial'),mode=null;
 function apply(e){var b=dial.getBoundingClientRect(),k=400/b.width,x=(e.clientX-b.left)*k-200,y=(e.clientY-b.top)*k-200;
   var deg=Math.atan2(x,-y)*180/Math.PI;if(deg<0)deg+=360;
-  if(mode==='w')S.wd=norm(deg);else S.rw=norm(deg);save();calc();sync()}
+  if(mode==='w')S.wd=norm(deg);else S.rw=norm(deg/10,36);save();calc();sync()}
 dial.addEventListener('pointerdown',function(e){var b=dial.getBoundingClientRect(),k=400/b.width,
   x=(e.clientX-b.left)*k-200,y=(e.clientY-b.top)*k-200;mode=Math.hypot(x,y)>=142?'w':'r';
   try{dial.setPointerCapture(e.pointerId)}catch(_){}apply(e);e.preventDefault()});
@@ -197,15 +187,11 @@ document.querySelectorAll('.st').forEach(function(el){
     ['pointerup','pointerleave','pointercancel'].forEach(function(n){b.addEventListener(n,stop)});
   });
   inp.addEventListener('input',function(){var v=parseInt(inp.value,10);if(isNaN(v))return;
-    var c=CFG[k];S[k]=c.w?norm(v):clamp(v,c.min,c.max);save();calc()});
+    var c=CFG[k];S[k]=c.w?norm(v,c.w):clamp(v,c.min,c.max);save();calc()});
   inp.addEventListener('blur',sync);
   inp.addEventListener('focus',function(){inp.select()});
 });
 /* settings */
-function sheet(o){$('sheet').classList.toggle('open',o)}
-$('gear').addEventListener('click',function(){sheet(true)});
-$('back').addEventListener('click',function(){sheet(false)});
-$('done').addEventListener('click',function(){sheet(false)});
 $('reset').addEventListener('click',function(){for(var k in DEF)S[k]=DEF[k];save();calc();sync()});
 document.querySelectorAll('.seg button').forEach(function(b){b.addEventListener('click',function(){S.lim=+b.dataset.l;save();calc();sync()})});
 load();calc();sync();
